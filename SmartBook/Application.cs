@@ -21,6 +21,7 @@ namespace SmartBook
             // First, load the existing library
             library = new Library();
             library.Load();
+            SBC.ShowToast($"Library loaded. {library.Books.Count} book{(library.Books.Count > 1 ? "s" : "")} loaded");
 
             OrderedDictionary<string, OrderedDictionary<string, Action?>> menu = new()
             {

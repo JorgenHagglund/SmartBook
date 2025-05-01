@@ -12,12 +12,6 @@ namespace SmartBook.Console
     {
         public static void ClearToEndOfScreen()
         {
-            /*int currentLine = SC.CursorTop;
-            int currentColumn = SC.CursorLeft;
-            int linesToClear = SC.WindowHeight - currentLine - 1;
-            for (int i = 0; i < linesToClear; i++)
-                SC.WriteLine(new string(' ', SC.WindowWidth - 1));
-            SC.SetCursorPosition(currentColumn, currentLine);*/
             SC.Write("\x1B[0J");
         }
 
@@ -48,7 +42,7 @@ namespace SmartBook.Console
             if (books.Count() == 0)
             {
                 SC.WriteLine("There are no books to list");
-                Thread.Sleep(2000);
+                WaitForUserToHitEnter();
                 return;
             }
             int[] columnWidths =
@@ -64,7 +58,7 @@ namespace SmartBook.Console
             foreach (var book in books)
                 SC.WriteLine($"{book.Title.PadRight(columnWidths[0])} | {book.Author.PadRight(columnWidths[1])} | {book.Status.ToString().PadRight(columnWidths[2])} | {book.ISBN.NormalizeISBNForDisplay()}");
 
-            Thread.Sleep(2000); 
+            WaitForUserToHitEnter(); 
         }
 
         private static OrderedDictionary<string, OrderedDictionary<String, Action?>>? _menu = null;
@@ -157,6 +151,33 @@ namespace SmartBook.Console
             SC.Write($"{prompt.Trim()} ");
             string? input = SC.ReadLine();
             return input?.Trim() ?? string.Empty;
+        }
+
+        public static void ShowToast(string message, int timeout = 2000)
+        {
+            SC.ForegroundColor = ConsoleColor.White;
+            SC.Write(message);
+            Thread.Sleep(timeout);
+            ClearCurrentLine(true);
+            SC.ResetColor();
+        }
+
+        public static void WaitForUserToHitEnter()
+        {
+            SC.Write($"{Environment.NewLine}Press <enter> to continue...");
+            while (SC.ReadKey(true).Key != ConsoleKey.Enter)
+                SC.Beep();
+            ClearCurrentLine();
+        }
+
+        private static void ClearCurrentLine(bool returnHome = true)
+        {
+            SC.Write("\x1B[0K");
+            if (returnHome)
+            {
+                //SC.Write("\x1B[0G");
+                SC.Write("\r");
+            }
         }
     }
 
